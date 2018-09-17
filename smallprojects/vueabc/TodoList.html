@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>title</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        nav{
+            box-sizing: border-box;
+            width: 100%;
+            height: 60px;
+            line-height: 60px;
+            background: #111;
+            border-radius: 5px;
+            padding-left: 20px;
+            color: #fff;
+        }
+        .content{
+            width: 800px;
+            min-height: 200px;
+            padding: 20px;
+            border-radius: 5px;
+            background: #e7e1cd;
+            margin: 30px auto;
+            border: 1px solid #ccc;
+        }
+        .inp{
+            width: 100%;
+            height: 40px;
+            margin: auto;
+            padding-left: 10px;
+            border-radius: 5px;
+        }
+        .todo_list{
+            list-style: none;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 20px;
+            background: #fff;
+        }
+        .todo_list li{
+            padding: 0 20px;
+            height: 50px;
+            line-height: 50px;
+            border-bottom: 1px solid #ccc;
+        }
+        .todo_list li .text_del{
+            text-decoration: line-through;
+            color: #ccc;
+        }
+        .todo_list li>input{
+            height: 30px;
+            width: 200px;
+        }
+        .todo_list li button{
+            float: right;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            outline: none;
+            border: none;
+            background: #cc080b;
+            color: #fff;
+            margin-top: 5px;
+        }
+        .hash_tab{
+            overflow: hidden;
+            width: 100%;
+            padding: 10px 0;
+            list-style: none;
+            background: #EFF3EF;
+            margin-top: 30px;
+        }
+        .hash_tab li{
+            cursor: pointer;
+            float: left;
+            margin-left: 40px;
+            font-size: 22px;
+            height: 60px;
+            line-height: 60px;
+        }
+        .hash_tab li a{
+            text-decoration: none;
+            color: #24ccc8;
+        }
+        .hash_tab li.current{
+            background: #15b3fb;
+            border-radius: 10px;
+        }
+        .hash_tab li.current a{
+            color: #fff;
+        }
+
+    </style>
+
+    <link rel="icon" href="">
+
+</head>
+<body>
+
+<div id="app">
+    <nav>
+        TODO-LIST
+    </nav>
+    <div class="content">
+        <h2>亲~ 你还有{{count}}件事要完成</h2>
+        <input type="text" class="inp" v-model="todo" @keyup.enter="add">
+        <ul class="todo_list">
+            <li v-for="(item,index) in todoAry" @dblclick="show(item)">
+                <span v-show="!item.flag">
+                    <input type="checkbox" v-model="item.isSelect" >
+                    {{item.title}}
+                </span>
+                <input type="text" v-show="item.flag" v-model="item.title" v-focus="item.flag" @blur="item.flag=false" @keyup.enter="item.flag=false">
+                <button @click="remove(index)">删除</button>
+            </li>
+        </ul>
+        <ul class="hash_tab">
+            <li :class="{current :hash==='a'}"><a href="#/a">全部任务</a></li>
+            <li :class="{current :hash==='b'}"><a href="#/b">已完成</a></li>
+            <li :class="{current :hash==='c'}"><a href="#/c">未完成</a></li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
+<script src="./node_modules/vue/dist/vue.js"></script>
+<script>
+    let vm = new Vue({
+        el: '#app',
+
+        data: {
+            todo:'',
+            ary:[{isSelect:false,title:'吃饭',flag:false}],
+            hash:'',
+        },
+        created(){
+            this.hash = location.hash.slice(2) || 'a';
+            this.ary = JSON.parse(localStorage.getItem('data') || this.ary);
+            window.onhashchange =  ()=> {
+                this.hash = location.hash.slice(2)
+            }
+        },
+        methods: {
+            add(){
+                this.todo.trim();
+                if(!this.todo)return;
+                this.ary.push({isSelect: false,title:this.todo});
+                this.todo=''
+            },
+            remove(i){
+                this.ary=this.ary.filter((item,index)=>{
+                    return i !==index;
+                })
+            },
+            show(item){
+                item.flag = !item.flag
+            }
+        },
+        computed:{
+            todoAry:{
+              get(){
+                  switch (this.hash) {
+                      case 'a':
+                          return this.ary;
+                          break;
+                      case 'b':
+                          return this.ary.filter((item)=>{
+                              return item.isSelect
+                          });
+                          break;
+                      case 'c':
+                          return this.ary.filter(item=>!item.isSelect)
+                  }
+              }
+            },
+            count(){
+                return this.ary.filter((item)=>{
+                    return !item.isSelect
+                }).length;
+            }
+        },
+        watch:{
+            ary:{
+                handler(){
+                    localStorage.setItem('data',JSON.stringify(this.ary))
+                },
+                deep:true
+            }
+        },
+        directives:{
+            focus(el,obj){
+                console.log(arguments);
+                if(obj.value){
+                    el.focus();
+                }
+            }
+        }
+    })
+
+
+</script>
