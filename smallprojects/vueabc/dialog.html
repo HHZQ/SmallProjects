@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>title</title>
+    <style>
+        .mask{
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background: rgba(0,0,0,.8);
+            left: 0;
+            top: 0;
+        }
+        .dialog{
+            width: 400px;
+            height: 150px;
+            background: #f4f4f4;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate3d(-50%,-50%,0);
+        }
+    </style>
+    <link rel="icon" href="">
+
+</head>
+<body>
+
+<div id="app">
+    <button @click="flag=true">弹</button>
+    <model :show="flag" @close="()=>flag = false"></model>
+</div>
+
+<template id="dialog">
+    <div class="mask" v-show="show">
+        <div class="dialog">
+            <button @click="shutdown">关闭</button>
+        </div>
+
+    </div>
+</template>
+
+</body>
+</html>
+<script src="./node_modules/vue/dist/vue.js"></script>
+<script>
+    let model = {
+        props:['show'],
+      template:'#dialog',
+        methods: {
+            shutdown(){
+                this.$emit('close');
+            }
+        }
+    };
+
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            flag:false
+        },
+        methods: {},
+        components:{
+            model
+        }
+    })
+
+
+</script>
